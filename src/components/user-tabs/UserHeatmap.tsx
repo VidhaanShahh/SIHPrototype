@@ -243,15 +243,28 @@ export function UserHeatmap() {
         <Card className="lg:col-span-2 bg-black/20 backdrop-blur-xl border border-white/10 hover:border-white/20 transition-all duration-300">
           <CardHeader>
             <CardTitle className="text-white">Activity Density Map</CardTitle>
-            <p className="text-gray-400 text-sm">
-              Circles represent reported activity intensity
-            </p>
           </CardHeader>
           <CardContent>
             <div
               id="map"
               className="w-full h-96 rounded-lg overflow-hidden border border-white/10"
             />
+
+            {/* ✅ Legend (Horizontal, below map) */}
+            <div className="flex justify-center space-x-6 mt-4 text-sm">
+              <div className="flex items-center space-x-2">
+                <span className="w-3 h-3 rounded-full bg-yellow-400"></span>
+                <span className="text-gray-300">Low Activity</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="w-3 h-3 rounded-full bg-orange-500"></span>
+                <span className="text-gray-300">Medium Activity</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="w-3 h-3 rounded-full bg-red-600"></span>
+                <span className="text-gray-300">High Activity</span>
+              </div>
+            </div>
           </CardContent>
         </Card>
 

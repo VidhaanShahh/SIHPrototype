@@ -313,3 +313,43 @@ html {
   opacity: 0.9;
   transform: translateY(-2px);
 }
+
+/* Light theme */
+.light {
+  @apply bg-white text-black;
+}
+
+.light .glass-card {
+  @apply bg-white border border-gray-200 text-black shadow-md;
+}
+
+.light h1,
+.light h2,
+.light h3,
+.light h4,
+.light h5,
+.light h6,
+.light p,
+.light span,
+.light a,
+.light li {
+  @apply text-black;
+}
+
+/* Dark theme */
+.dark {
+  @apply bg-gradient-to-br from-slate-950 via-blue-950 to-purple-950 text-white;
+}
+
+.dark .glass-card {
+  @apply bg-white/10 border border-white/10 text-white;
+}
+/* All dashboard cards should be grey in light mode */
+.light .glass-card {
+  @apply bg-gray-100 border border-gray-300 text-black shadow-sm;
+}
+
+/* Dark mode stays glass */
+.dark .glass-card {
+  @apply bg-white/10 border border-white/10 text-white;
+}
