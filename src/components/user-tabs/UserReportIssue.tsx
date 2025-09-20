@@ -7,9 +7,6 @@ import { Label } from '../ui/label';
 import { Badge } from '../ui/badge';
 import { Progress } from '../ui/progress';
 import { 
-  Upload, 
-  Camera, 
-  MapPin, 
   AlertTriangle, 
   Zap, 
   Droplets, 
@@ -18,7 +15,10 @@ import {
   Send,
   X,
   FileText,
-  Mic
+  Mic,
+  MapPin,
+  Upload,
+  Camera
 } from 'lucide-react';
 
 const issueCategories = [
@@ -46,13 +46,10 @@ export function UserReportIssue() {
     location: '',
     images: [] as string[]
   });
-  const [isDragOver, setIsDragOver] = useState(false);
-
-  // ✅ Voice input states
   const [isRecording, setIsRecording] = useState(false);
   const recognitionRef = useRef<any>(null);
 
-  // Initialize speech recognition
+  // ✅ Initialize speech recognition
   useEffect(() => {
     if ('webkitSpeechRecognition' in window) {
       const SpeechRecognition =
@@ -102,7 +99,6 @@ export function UserReportIssue() {
 
   const handleFileUpload = (files: FileList | null) => {
     if (!files) return;
-    
     const fileArray = Array.from(files);
     const imageUrls = fileArray.map(file => URL.createObjectURL(file));
     setFormData(prev => ({ ...prev, images: [...prev.images, ...imageUrls] }));
@@ -142,7 +138,7 @@ export function UserReportIssue() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Progress Header */}
-      <Card className="bg-black/20 backdrop-blur-xl border border-white/10 hover:border-white/20 transition-all duration-300">
+      <Card className="bg-black/20 backdrop-blur-xl border border-white/10">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -163,56 +159,131 @@ export function UserReportIssue() {
       </Card>
 
       {/* Step Content */}
-      <Card className="bg-black/20 backdrop-blur-xl border border-white/10 hover:border-white/20 transition-all duration-300">
+      <Card className="bg-black/20 backdrop-blur-xl border border-white/10">
         <CardContent className="p-8">
-          {/* Step 1: Basic Information */}
+          {/* Step 1 */}
           {currentStep === 1 && (
             <div className="space-y-6">
-              <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold text-white mb-2">Basic Information</h2>
-                <p className="text-gray-400">Let's start with the basics about your issue</p>
+              <h2 className="text-2xl font-bold text-white">Basic Information</h2>
+              <div>
+                <Label className="text-white">Issue Title</Label>
+                <Input
+                  value={formData.title}
+                  onChange={(e) => handleInputChange('title', e.target.value)}
+                  placeholder="Brief issue title"
+                  className="bg-black/30 border-white/20 text-white"
+                />
               </div>
+              <div>
+                <Label className="text-white flex justify-between">
+                  Detailed Description
+                  <Button onClick={startVoiceInput} type="button" className="ml-2 flex items-center">
+                    <Mic className="h-4 w-4 mr-1" />
+                    {isRecording ? 'Stop' : 'Voice Input'}
+                  </Button>
+                </Label>
+                <Textarea
+                  value={formData.description}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  placeholder="Describe the issue in detail..."
+                  className="bg-black/30 border-white/20 text-white min-h-32"
+                />
+              </div>
+            </div>
+          )}
 
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="title" className="text-white">Issue Title</Label>
-                  <Input
-                    id="title"
-                    placeholder="Brief description of the issue"
-                    value={formData.title}
-                    onChange={(e) => handleInputChange('title', e.target.value)}
-                    className="mt-1 bg-black/30 border-white/20 text-white placeholder-gray-400 focus:border-blue-500"
-                  />
-                </div>
+          {/* Step 2 */}
+          {currentStep === 2 && (
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-white">Category & Priority</h2>
+              <div className="grid grid-cols-2 gap-4">
+                {issueCategories.map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => handleInputChange('category', cat.id)}
+                    className={`p-4 rounded-xl border ${
+                      formData.category === cat.id ? 'border-blue-500 bg-blue-500/20' : 'border-white/20'
+                    } text-left text-white`}
+                  >
+                    <cat.icon className="h-5 w-5 mb-2 text-blue-400" />
+                    <div className="font-semibold">{cat.name}</div>
+                    <div className="text-sm text-gray-400">{cat.description}</div>
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-3">
+                {priorityLevels.map((level) => (
+                  <button
+                    key={level.id}
+                    onClick={() => handleInputChange('priority', level.id)}
+                    className={`px-4 py-2 rounded-lg border ${
+                      formData.priority === level.id ? level.color : 'border-white/20 text-gray-300'
+                    }`}
+                  >
+                    {level.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
-                <div>
-                  <Label htmlFor="description" className="text-white flex items-center justify-between">
-                    <span>Detailed Description</span>
-                    <Button
-                      type="button"
-                      onClick={startVoiceInput}
-                      className="ml-2 flex items-center px-3 py-1 rounded-md"
-                    >
-                      <Mic className="h-4 w-4 mr-1" />
-                      {isRecording ? 'Stop' : 'Voice Input'}
-                    </Button>
-                  </Label>
-                  <Textarea
-                    id="description"
-                    placeholder="Provide more details about the issue..."
-                    value={formData.description}
-                    onChange={(e) => handleInputChange('description', e.target.value)}
-                    className="mt-1 bg-black/30 border-white/20 text-white placeholder-gray-400 focus:border-blue-500 min-h-32"
-                  />
+          {/* Step 3 */}
+          {currentStep === 3 && (
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-white">Location & Media</h2>
+              <div>
+                <Label className="text-white">Location</Label>
+                <Input
+                  value={formData.location}
+                  onChange={(e) => handleInputChange('location', e.target.value)}
+                  placeholder="Enter location or landmark"
+                  className="bg-black/30 border-white/20 text-white"
+                />
+              </div>
+              <div>
+                <Label className="text-white">Upload Images</Label>
+                <Input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={(e) => handleFileUpload(e.target.files)}
+                  className="bg-black/30 border-white/20 text-white"
+                />
+                <div className="flex flex-wrap gap-3 mt-3">
+                  {formData.images.map((img, idx) => (
+                    <div key={idx} className="relative w-24 h-24 rounded-lg overflow-hidden border border-white/20">
+                      <img src={img} alt="uploaded" className="object-cover w-full h-full" />
+                      <button
+                        onClick={() => removeImage(idx)}
+                        className="absolute top-1 right-1 bg-black/50 p-1 rounded-full"
+                      >
+                        <X className="h-4 w-4 text-white" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
           )}
 
-          {/* Step 2, 3, 4 remain unchanged */}
-          {/* ... your existing code for steps 2, 3, 4 ... */}
+          {/* Step 4 */}
+          {currentStep === 4 && (
+            <div className="space-y-6 text-white">
+              <h2 className="text-2xl font-bold">Review & Submit</h2>
+              <p><b>Title:</b> {formData.title}</p>
+              <p><b>Description:</b> {formData.description}</p>
+              <p><b>Category:</b> {formData.category}</p>
+              <p><b>Priority:</b> {formData.priority}</p>
+              <p><b>Location:</b> {formData.location}</p>
+              <div className="flex flex-wrap gap-3">
+                {formData.images.map((img, idx) => (
+                  <img key={idx} src={img} alt="preview" className="w-24 h-24 rounded-lg object-cover border border-white/20" />
+                ))}
+              </div>
+            </div>
+          )}
 
-          {/* Navigation Buttons */}
+          {/* Navigation */}
           <div className="flex justify-between mt-8 pt-6 border-t border-white/10">
             <Button
               variant="outline"
@@ -222,7 +293,6 @@ export function UserReportIssue() {
             >
               Previous
             </Button>
-            
             {currentStep < 4 ? (
               <Button
                 onClick={nextStep}
@@ -245,3 +315,4 @@ export function UserReportIssue() {
     </div>
   );
 }
+
